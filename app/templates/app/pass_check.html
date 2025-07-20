@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Join Thread</title>
+        <style>
+            :root {
+                --background: #36393f;
+                --sidebar: #2f3136;
+                --text: #dcddde;
+                --text-muted: #72767d;
+                --accent: #5865f2;
+                --hover: #40444b;
+                --border-radius: 5px;
+                --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family:
+                    "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            }
+
+            body {
+                background-color: var(--background);
+                color: var(--text);
+                display: flex;
+                min-height: 100vh;
+                font-size: 16px;
+            }
+
+            .content {
+                flex: 1;
+                padding: 20px;
+                max-width: 900px;
+                margin: 0 auto;
+            }
+
+            h1 {
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 20px;
+                color: var(--text);
+            }
+
+            .error {
+                color: #ed4245; /* Discord's error red */
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+
+            form {
+                background-color: var(--sidebar);
+                padding: 20px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            label {
+                color: var(--text);
+                font-weight: 500;
+            }
+
+            input[type="password"] {
+                padding: 8px;
+                border: none;
+                border-radius: var(--border-radius);
+                background-color: var(--hover);
+                color: var(--text);
+                font-size: 14px;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            input[type="password"]:focus {
+                outline: none;
+                background-color: #484c52;
+            }
+
+            button {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: var(--accent);
+                color: white;
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                font-weight: 500;
+                width: fit-content;
+            }
+
+            button:hover {
+                background-color: #4752c4;
+            }
+
+            a {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: var(--accent);
+                color: white;
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                margin-top: 10px;
+                transition: background-color 0.2s;
+                font-weight: 500;
+            }
+
+            a:hover {
+                background-color: #4752c4;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <h1>Join Thread: {{ slug }}</h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="error">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="{% url 'pass_check' slug=slug %}">
+                {% csrf_token %}
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required />
+                <button type="submit">Join</button>
+            </form>
+            <a href="{% url 'index' %}">Back</a>
+        </div>
+    </body>
+</html>

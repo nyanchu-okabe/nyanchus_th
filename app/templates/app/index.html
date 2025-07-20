@@ -1,0 +1,45 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block title %}掲示板{% endblock %}
+
+{% block content %}
+            <img src="{% static "app/nyanchu.png" %}" alt="nyanchu" />
+            <h1>nyanchu thread</h1>
+            <p class="date">{% now "Y/m/d/H:i" %}</p>
+            <p class="date">{{ username }}</p>
+            <ul>
+                {% for thread in threads %}
+                <li>
+                    {{ thread.thread_name }}
+                    <a href="{% url 'pass_check' slug=thread.slug %}">Join</a>
+                </li>
+                {% empty %}
+                <li class="empty">まだスレッドがないで。</li>
+                {% endfor %}
+            </ul>
+            <div class="button-group">
+                <a href="{% url 'create_board' %}">Create Thread</a>
+                <a href="{% url 'index' %}">戻る</a>
+                {% if request.session.user_id %}
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="
+                            display: inline-block;
+                            padding: 8px 16px;
+                            background-color: var(--accent);
+                            color: white;
+                            border: none;
+                            border-radius: var(--border-radius);
+                            cursor: pointer;
+                            transition: background-color 0.2s;
+                            font-weight: 500;
+                            margin: 10px 10px 0 0;
+                        ">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'signup' %}">Sign Up</a>
+                {% endif %}
+            </div>
+{% endblock %}

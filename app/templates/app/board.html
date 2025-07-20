@@ -1,0 +1,96 @@
+{% extends "app/base.html" %}
+
+{% block title %}{{ thread.thread_name }}{% endblock %}
+
+{% block content %}
+            <div class="field">
+                <h1>{{ thread.thread_name }}</h1>
+                <p>Board ID: {{ board_slug }}</p>
+            </div>
+            <p class="date">今日は {% now "Y/m/d/" %} です</p>
+            <h2>Comments</h2>
+            <div id="comment-list">
+                {% if comments %} {% for comment in comments %}
+                <div class="comment">
+                    <p>
+                        <strong>{{ comment.user.username }}</strong>: {{ comment.content|linebreaks }}
+                        <span class="timestamp">
+                            (Posted on {{ comment.created_at }})
+                        </span>
+                    </p>
+                </div>
+                {% empty %}
+                <p class="no-comments">No comments yet.</p>
+                {% endfor %} {% else %}
+                <p class="no-comments">No comments available.</p>
+                {% endif %}
+            </div>
+            <h3>Add a Comment</h3>
+            <div class="comment-form">
+                {% if current_user %}
+                <form id="comment-form" method="post">
+                    {% csrf_token %}
+                    <textarea name="content" required></textarea>
+                    <button type="submit">Post Comment</button>
+                </form>
+            {% else %}
+                <p>Please <a href="{% url 'login' %}">login</a> to post a comment.</p>
+            {% endif %}
+            </div>
+            <a href="{% url 'index' %}">戻る</a>
+{% endblock %}
+
+{% block extra_js %}
+        <script>
+            $(document).ready(function() {
+                let lastTimestamp = "{{ last_timestamp|default:'' }}";
+
+                $('#comment-form').on('submit', function(event) {
+                    event.preventDefault();
+                    var form = $(this);
+                    $.ajax({
+                        url: "{% url 'board_detail' slug=board_slug %}",
+                        type: 'POST',
+                        data: form.serialize(),
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                        },
+                        success: function(response) {
+                            appendComment(response);
+                            form.find('textarea').val('');
+                            lastTimestamp = new Date().toISOString();
+                        },
+                        error: function(xhr, errmsg, err) {
+                            console.log(xhr.status + ": " + xhr.responseText);
+                        }
+                    });
+                });
+
+                function appendComment(comment) {                    var newComment = '<div class="comment"><p><strong>' + comment.username + '</strong>: ' + comment.content.replace(/\n/g, '<br>') + '<span class="timestamp">(Posted on ' + comment.created_at + ')</span></p></div>';                    $('#comment-list').append(newComment);                    $('.no-comments').hide();                }
+
+                function fetchUpdates() {
+                    $.ajax({
+                        url: "{% url 'fetch_updates' slug=board_slug %}",
+                        type: 'GET',
+                        data: { 'last_timestamp': lastTimestamp },
+                        beforeSend: function(xhr, settings) {
+                            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                        },
+                        success: function(response) {
+                            if (response.comments && response.comments.length > 0) {
+                                response.comments.forEach(function(comment) {
+                                    appendComment(comment);
+                                });
+                                lastTimestamp = new Date().toISOString();
+                            }
+                        },
+                        error: function(xhr, errmsg, err) {
+                            console.log(xhr.status + ": " + xhr.responseText);
+                        }
+                    });
+                }
+
+                setInterval(fetchUpdates, 5000); // 5秒ごとに更新
+            });
+        </script>
+{% endblock %}

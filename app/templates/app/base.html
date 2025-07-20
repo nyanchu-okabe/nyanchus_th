@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}掲示板{% endblock %}</title>
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <style>
+            :root {
+                --background: #36393f;
+                --sidebar: #2f3136;
+                --text: #dcddde;
+                --text-muted: #72767d;
+                --accent: #5865f2;
+                --hover: #40444b;
+                --border-radius: 5px;
+                --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family:
+                    "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            }
+
+            body {
+                background-color: var(--background);
+                color: var(--text);
+                display: flex;
+                min-height: 100vh;
+                font-size: 16px;
+            }
+
+            .content {
+                flex: 1;
+                padding: 20px;
+                max-width: 900px;
+                margin: 0 auto;
+            }
+
+            .field {
+                background-color: var(--sidebar);
+                padding: 15px;
+                border-radius: var(--border-radius);
+                margin-bottom: 20px;
+                box-shadow: var(--shadow);
+            }
+
+            h1 {
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 10px;
+                color: var(--text);
+            }
+
+            .field p {
+                color: var(--text-muted);
+                font-size: 14px;
+            }
+
+            .date {
+                background-color: var(--sidebar);
+                padding: 10px 15px;
+                border-radius: var(--border-radius);
+                color: var(--text-muted);
+                font-size: 14px;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+
+            h2 {
+                font-size: 20px;
+                font-weight: 600;
+                margin: 20px 0 10px;
+                color: var(--text);
+            }
+
+            h3 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 20px 0 10px;
+                color: var(--text);
+            }
+
+            .comment {
+                background-color: var(--sidebar);
+                padding: 10px 15px;
+                border-radius: var(--border-radius);
+                margin-bottom: 10px;
+                box-shadow: var(--shadow);
+                transition: background-color 0.2s;
+            }
+
+            .comment:hover {
+                background-color: var(--hover);
+            }
+
+            .comment p {
+                color: var(--text);
+                font-size: 16px;
+            }
+
+            .comment .timestamp {
+                color: var(--text-muted);
+                font-size: 12px;
+                margin-top: 5px;
+            }
+
+            .no-comments {
+                color: var(--text-muted);
+                font-style: italic;
+                background-color: var(--sidebar);
+                padding: 10px 15px;
+                border-radius: var(--border-radius);
+                margin-bottom: 10px;
+                box-shadow: var(--shadow);
+            }
+
+            .comment-form {
+                background-color: var(--sidebar);
+                padding: 15px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                margin-bottom: 20px;
+            }
+
+            textarea,
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                min-height: 40px; /* Adjust height for input fields */
+                background-color: #40444b;
+                border: none;
+                border-radius: var(--border-radius);
+                padding: 10px;
+                color: var(--text);
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            textarea:focus,
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                background-color: #484c52;
+            }
+
+            button {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: var(--accent);
+                color: white;
+                border: none;
+                border-radius: var(--border-radius);
+                cursor: pointer;
+                transition: background-color 0.2s;
+                font-weight: 500;
+            }
+
+            button:hover {
+                background-color: #4752c4;
+            }
+
+            a {
+                display: inline-block;
+                padding: 8px 16px;
+                background-color: var(--accent);
+                color: white;
+                text-decoration: none;
+                border-radius: var(--border-radius);
+                margin: 10px 10px 0 0;
+                transition: background-color 0.2s;
+                font-weight: 500;
+            }
+
+            a:hover {
+                background-color: #4752c4;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 10px;
+            }
+
+            /* Specific style for Join button */
+            li a[href*="pass_check"] {
+                margin: 0; /* Remove margin to avoid extra spacing */
+            }
+
+            /* Hover effect for image */
+            img:hover {
+                filter: hue-rotate(200deg) brightness(1.2);
+                transition: filter 0.3s ease;
+            }
+            img {
+                display: block;
+                margin: 0 auto;
+            }
+            .user-id,
+            .date {
+                background-color: var(--sidebar);
+                padding: 10px 15px;
+                border-radius: var(--border-radius);
+                color: var(--text-muted);
+                font-size: 14px;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+
+            ul {
+                list-style: none;
+                background-color: var(--sidebar);
+                border-radius: var(--border-radius);
+                padding: 10px;
+                box-shadow: var(--shadow);
+            }
+
+            li {
+                padding: 10px 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                color: var(--text);
+                transition: background-color 0.2s;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            li:hover {
+                background-color: var(--hover);
+            }
+
+            li.empty {
+                color: var(--text-muted);
+                font-style: italic;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: var(--text);
+                font-weight: 500;
+            }
+
+            .errorlist {
+                color: #f04747;
+                list-style: none;
+                padding: 0;
+                margin: -10px 0 10px 0;
+            }
+
+            .errorlist li {
+                font-size: 12px;
+                padding: 0;
+                border: none;
+                background: none;
+                color: #f04747;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+        {% block extra_js %}
+        {% endblock %}
+    </body>
+</html>
